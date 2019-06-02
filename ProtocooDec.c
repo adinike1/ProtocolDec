@@ -1,4 +1,4 @@
-﻿#include "stdio.h"
+#include "stdio.h"
 #include <string.h>
 #include "crc16.h"
 typedef int int32_t;
@@ -208,7 +208,7 @@ int32_t Protocol_pack(uint8_t *p_buf, uint8_t *pdata, uint8_t data_len)
 	protocol.version = 0x01;
 	protocol.len = sizeof(protocol) + data_len+ sizeof(pack_crc16);
 	protocol.crc16 = crc16((uint8_t *)&protocol, PROTOCOL_HEADR_LEN);
-	printf("pack header crc :0x%0x", protocol.crc16);
+	printf("pack header crc :0x%0x\r\n", protocol.crc16);
 	protocol.cmd_set = 0x20;
 	protocol.cmd_id = 0x21;
 	protocol.seq_num = seq_num++;
@@ -234,7 +234,7 @@ int32_t check_header(uint8_t *buf)
 	ProtocolHeader_t *header = (ProtocolHeader_t *)buf;
 	pack_len = header->len;
 	memcpy(&crc_val, buf+ PROTOCOL_HEADR_LEN, sizeof(uint16_t));
-	printf("calc header crc :0x%0x", crc_val); 
+	printf("dec header crc :0x%0x\r\n", crc_val); 
 	if ((header->sof == SOF) && (crc_val == crc16(buf, PROTOCOL_HEADR_LEN)))  //TODO add 头校验
 	{
 		printf("check header succeed\r\n");
@@ -256,7 +256,7 @@ int32_t check_pack(uint8_t *buf)
 	ProtocolHeader_t *header = (ProtocolHeader_t *)buf;
 	pack_len = header->len;
 	memcpy(&crc_val, buf + get_pack_len(buf) - 2, sizeof(uint16_t));
-	printf("calc pack crc :0x%0x", crc_val);
+	printf("dec pack crc :0x%0x\r\n", crc_val);
 	if ((crc_val == crc16(buf, get_pack_len(buf) - 2 )))
 	{
 		printf("check_pack succeed\r\n");
@@ -330,12 +330,19 @@ void ProtocolDepack(cqueue_t *q)
 					}
 				}
 			}
+			goto end;
+			
+		find_again:
+			//do
+			//{
+				break;
+			//} while (0);
+		end:
+			do
+			{
+			} while (0);
 		}
-	find_again:
-		do
-		{
-			break;
-		} while (0);
+
 
 	}
 }
