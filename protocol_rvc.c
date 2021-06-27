@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "crc16.h"
 #include "protocol_hal.h"
+
 #pragma pack(1)
 
 #define RVC_SOF     0xAAAA
@@ -37,12 +38,12 @@ typedef  struct
 
 static int32_t unpack(uint8_t *buf, user_pack_t * pack)
 {
-    RVC_Protocol_t p = (RVC_Protocol_t *)buf;
+    RVC_Protocol_t *p = (RVC_Protocol_t *)buf;
     pack->sender = 0;
     pack->receiver = 0;
     pack->data = p->data;
     pack->data_len = sizeof(bno080_data_t);
-    
+
     return 0;
 }
 
@@ -51,17 +52,38 @@ int32_t get_header_len(uint8_t *buf)
     return 2;
 }
 
+int32_t get_pack_len(uint8_t *buf)
+{
+    return 19;
+}
+
+int32_t check_header(uint8_t *buf)
+{
+    RVC_ProtocolHeader_t *h = (RVC_ProtocolHeader_t *)(buf);
+    if(h->sof == RVC_SOF)
+        return 1;
+    else
+        return 0;
+}
+
+int32_t check_pack(uint8_t *buf)
+{
+    RVC_Protocol_t *h = (RVC_Protocol_t *)(buf);
+    //if(crc8(buf+2, 16))
+    return 1;
+}
+
 static int32_t pack(uint8_t *buf,user_pack_t *pack)
 {
     RVC_ProtocolHeader_t header;
     header.sof = RVC_SOF;
     memcpy(buf, &header, sizeof(header));
     memcpy(buf+sizeof(RVC_ProtocolHeader_t), pack->data, sizeof(bno080_data_t));
-    
+
     return 0;
 }
 
-const protocol_t bno080_rvc = 
+const protocol_t bno080_rvc =
 {
     PROTOCOL_RVC,
     check_header,
@@ -70,10 +92,11 @@ const protocol_t bno080_rvc =
     get_pack_len,
     unpack,
     pack
-}
+};
 
-protocol_bno080_rvc_init(void)
+int32_t protocol_bno080_rvc_init(void)
 {
     protocol_register(&bno080_rvc);
+    return 0;
 }
 

@@ -46,7 +46,7 @@ typedef struct LineBuf
 	uint8_t buf[LINE_BUF_SIZE];
 }LineBuf_t;
 
-void LineBufInit(LineBuf_t*l)
+void LineBufInit(LineBuf_t*l, uint32_t LINE_BUF_SIZE)
 {
 	l->size = LINE_BUF_SIZE;
 }
